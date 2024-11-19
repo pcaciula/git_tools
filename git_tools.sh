@@ -125,15 +125,15 @@ alias cc='commitBranchConventional'
   }
   # The main upstream branch (like "origin/master", "origin/dev", "origin/develop").
   mainBranch() {
-    upstreamName=$(getUpstreamName);
+    upstreamName=$(upstreamName);
     baseName="refs/remotes"
     longName=$(git symbolic-ref "$baseName/$upstreamName/HEAD");
     echo ${longName#$baseName/};
   }
   # The name of main branch
   mainBranchName(){
-    withOrigin=${1:-$(getMainBranch)};
-    echo ${withOrigin#$(getUpstreamName)/}
+    withOrigin=${1:-$(mainBranch)};
+    echo ${withOrigin#$(upstreamName)/}
   }
   # Parse passed args and build conventional commit msg from them.
   # --type|-t: commit msg type (defaults feat)
