@@ -6,19 +6,26 @@
 # Version: 1.0
 
 #================================= GIT TOOLS =================================#
+# newBranch 12345 'feature' 'MyProject'
 alias newBranch='newBranchFromMain'
+# nb 12345 'feature' 'MyProject'
 alias nb='newBranchFromMain'
 alias rebase='rebaseMain'
 alias r='rebaseMain'
+# prr 12345 'feature' 'MyProject'
 alias prr='checkoutPrReview'
 alias refm='refreshMainBranch'
 alias gpsu='pushSetUpstream'
 alias gpfl='gitPushForceLease'
 alias reMain='rebaseKeepingMainOnly'
 alias reLocal='rebaseKeepingLocalOnly'
+# commit "My commit Message"
 alias commit='commitBranch'
+# c "My commit Message"
 alias c='commitBranch'
+# ccommit -m="myCommitMsg" -t="chore" -s="myModule"
 alias ccomit='commitBranchConventional'
+# cc -m="myCommitMsg" -t="chore" -s="myModule"
 alias cc='commitBranchConventional'
 
 #-------- HELPER FUNCTIONS--------#
@@ -148,20 +155,21 @@ alias cc='commitBranchConventional'
           msg="${1#*=}"
           ;;
         --help|-h)
-          printf "Eg: commitBranchConventional -t='chore' -m='My Commit message \n body'
-          \n commitBranchConventional -t='feat' -s="MyModule" -m='My Commit message \n body' "
-          exit 0
+          echo "Usage:
+  commitBranchConventional -t='chore' -m='My Commit message'
+  commitBranchConventional -t='feat' -s="MyModule" -m='My Commit message'"
+          return 0
           ;;
         *)
-          >&2 printf "Error: Invalid argument\n"
-          exit 1
+          >&2 echo "Error: Invalid argument\n"
+          return 1
           ;;
       esac
       shift
     done
     if [ -z "$msg" ]; then
-      >&2 printf "Error: Invalid argument\n"
-      exit 1;
+      >&2 printf "Error: Missing required arg (--message|-m)\n"
+      return 1;
     fi
     type=${t:-feat}
     if [ -z "s" ]; then
