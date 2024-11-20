@@ -27,6 +27,7 @@ alias c='commitBranch'
 alias ccomit='commitBranchConventional'
 # cc -m="myCommitMsg" -t="chore" -s="myModule"
 alias cc='commitBranchConventional'
+alias rfu='resetFromUpstream'
 
 #-------- HELPER FUNCTIONS--------#
   # Create a new branch off the latest main branch from ticket number(at least).
@@ -55,8 +56,9 @@ alias cc='commitBranchConventional'
   }
   # Refresh local copy of main branch from upstream. Assumes same name.
   refreshMainBranch() {
-    mainBranch=$(mainBranch);
-    git fetch --all && git checkout $(mainBranchName $mainBranch) && git reset --hard "$mainBranch";
+    mainBranch=$(mainBranchName);
+    git checkout $mainBranch;
+    resetFromUpstream $mainBranch;
   }
   # Force push current branch with lease.
   gitPushForceLease() {
@@ -92,15 +94,18 @@ alias cc='commitBranchConventional'
   # $3: Project (default "KOCO", "<no-project>" will ommit including dash)
   checkoutPrReview() {
     prBranch=$(branchFromParts "$@")
-    # we haven't switched branches yet, so use the incoming prBranch
-    # to get the upstreamName.
-    upstream=$(upstreamName $prBranch);
-    echo "Upstream Pr Branch: $upstream/$prBranch.";
-    git fetch --all;
     echo "checking out $prBranch branch locally."
     git checkout "$prBranch";
-    echo "Resetting hard to upstream ($upstream/$prBranch) to get latest changes."
-    git reset --hard "$upstream/$prBranch"
+    resetFromUpstream ${1:-$(branch)}
+  }
+  # Reset branch to upstream state.
+  # $1: Optional branch name if it's not the current.
+  resetFromUpstream() {
+    git fetch --all;
+    branch=${1:-$(branch)}
+    remote=$(upstreamName $branch)/$branch;
+    echo "Resetting hard to upstream ($remote) to get latest changes."
+    git reset --hard $remote;
   }
   # Function create branch name from (at minimum) a ticket number.
   # $1: Ticket Number (required)...this doesn't strictly need to be numeric.
@@ -114,6 +119,29 @@ alias cc='commitBranchConventional'
     if [ "$3" = "<no-project>" ]; then proj=""; fi;
     branch="${prefix}${proj}${number}";
     echo $branch;
+  }
+  # Find last common commit between 2 branches
+  # $1: compare branch1
+  # $2: compare branch2 (optional - defaults to current branch).
+  commonAncestor() {
+    git merge-base $1 ${2:-$(branch)};
+  }
+  # Find diffs between 2 branches
+  # $1: compare against branch (2).
+  # $2: first branch to compare (optional defaults to current branch).
+  diffBranches() {
+    echo "Running git diff $2 $1";
+    git diff $2 $1;
+  }
+  # Search Commit Messages
+  # $1: string to search.
+  searchCommitMsgs() {
+    git log --all --grep="$1"
+  }
+  # Search inside committed code.
+  # $1 search string.
+  searchWithinCommits() {
+    git log -p -G "$1"
   }
 #--------- LOWER LEVEL TOOLS ---------#
   # Name of the current branch (without upstream/).
