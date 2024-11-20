@@ -37,7 +37,7 @@ alias cc='commitBranchConventional'
     refreshMainBranch && git checkout -b $(branchFromParts "$@")
   }
   # Simply commit the current branch with the message passed as the first param.
-  # $1: The content of the commit message (minus the prefix).
+  # $1: The content of the commit message (minus tqhe prefix).
   commitBranch() {
     branch=$(branch)
     msg=$1;
@@ -64,6 +64,7 @@ alias cc='commitBranchConventional'
   }
   # Push current branch for the first time setting upstream
   pushSetUpstream() {
+    echo " git push --set-upstream $(upstreamName) $(branch)";
     git push --set-upstream $(upstreamName) $(branch);
   }
   # Just rebase against upstream main branch.
@@ -73,12 +74,12 @@ alias cc='commitBranchConventional'
   # Perform a rebase keeping upstream changes discarding local conflicts.
   rebaseKeepingMainOnly() {
     # this is confusing but correct (reversed in rebase).
-    git rebase -X ours;
+    git rebase $(mainBranch) -X ours;
   }
   # Perform a rebase keeping local changes discarding upstream conflicts.
-  rebaseKeepingLocalOnly() {s
+  rebaseKeepingLocalOnly() {
     # this is confusing but correct (reversed in rebase).
-    git rebase -X theirs;
+    git rebase $(mainBranch) -X theirs;
   }
   # Merge latest changes from main branch into stage.
   elevateStage() {
@@ -127,7 +128,8 @@ alias cc='commitBranchConventional'
   # $1: Optionally accept a passed branch name (defaults to current branch).
   upstreamName() {
     local=${1:-$(branch)};
-    git config "branch.$local.remote";
+    # todo: instead of defaulting to origin find a better way to parse remotes.
+    echo ${$(git config "branch.$local.remote"):-origin};
   }
   # The main upstream branch (like "origin/master", "origin/dev", "origin/develop").
   mainBranch() {
