@@ -64,6 +64,7 @@ alias cc='commitBranchConventional'
   }
   # Push current branch for the first time setting upstream
   pushSetUpstream() {
+    echo " git push --set-upstream $(upstreamName) $(branch)";
     git push --set-upstream $(upstreamName) $(branch);
   }
   # Just rebase against upstream main branch.
@@ -127,7 +128,8 @@ alias cc='commitBranchConventional'
   # $1: Optionally accept a passed branch name (defaults to current branch).
   upstreamName() {
     local=${1:-$(branch)};
-    git config "branch.$local.remote";
+    # todo: instead of defaulting to origin find a better way to parse remotes.
+    echo ${$(git config "branch.$local.remote"):-origin};
   }
   # The main upstream branch (like "origin/master", "origin/dev", "origin/develop").
   mainBranch() {
