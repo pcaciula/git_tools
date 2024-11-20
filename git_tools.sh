@@ -76,7 +76,7 @@ alias cc='commitBranchConventional'
     git rebase -X ours;
   }
   # Perform a rebase keeping local changes discarding upstream conflicts.
-  rebaseKeepingLocalOnly() {
+  rebaseKeepingLocalOnly() {s
     # this is confusing but correct (reversed in rebase).
     git rebase -X theirs;
   }
@@ -91,10 +91,15 @@ alias cc='commitBranchConventional'
   # $3: Project (default "KOCO", "<no-project>" will ommit including dash)
   checkoutPrReview() {
     prBranch=$(branchFromParts "$@")
-    upstream=$(upstreamName)
+    # we haven't switched branches yet, so use the incoming prBranch
+    # to get the upstreamName.
+    upstream=$(upstreamName $prBranch);
+    echo "Upstream Pr Branch: $upstream/$prBranch.";
     git fetch --all;
-    git checkout "$branch";
-    git reset --hard "$upstream/$branch"
+    echo "checking out $prBranch branch locally."
+    git checkout "$prBranch";
+    echo "Resetting hard to upstream ($upstream/$prBranch) to get latest changes."
+    git reset --hard "$upstream/$prBranch"
   }
   # Function create branch name from (at minimum) a ticket number.
   # $1: Ticket Number (required)...this doesn't strictly need to be numeric.
@@ -119,13 +124,17 @@ alias cc='commitBranchConventional'
     git rev-parse --abbrev-ref --symbolic-full-name @{u}
   }
   # The upstream of the current branch (like "origin").
+  # $1: Optionally accept a passed branch name (defaults to current branch).
   upstreamName() {
-    local=$(branch);
-    git config "branch.$local.remote"
+    local=${1:-$(branch)};
+    git config "branch.$local.remote";
   }
   # The main upstream branch (like "origin/master", "origin/dev", "origin/develop").
   mainBranch() {
-    upstreamName=$(upstreamName);
+    # default to origin if we don't know any better.
+    # todo: parse git remotes to make a better guess for new branches
+    # not tracking anything yet.
+    upstreamName=${$(upstreamName):-origin};
     baseName="refs/remotes"
     longName=$(git symbolic-ref "$baseName/$upstreamName/HEAD");
     echo ${longName#$baseName/};
