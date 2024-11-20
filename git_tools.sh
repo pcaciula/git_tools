@@ -37,7 +37,7 @@ alias cc='commitBranchConventional'
     refreshMainBranch && git checkout -b $(branchFromParts "$@")
   }
   # Simply commit the current branch with the message passed as the first param.
-  # $1: The content of the commit message (minus the prefix).
+  # $1: The content of the commit message (minus tqhe prefix).
   commitBranch() {
     branch=$(branch)
     msg=$1;
@@ -73,12 +73,12 @@ alias cc='commitBranchConventional'
   # Perform a rebase keeping upstream changes discarding local conflicts.
   rebaseKeepingMainOnly() {
     # this is confusing but correct (reversed in rebase).
-    git rebase -X ours;
+    git rebase $(mainBranch) -X ours;
   }
   # Perform a rebase keeping local changes discarding upstream conflicts.
-  rebaseKeepingLocalOnly() {s
+  rebaseKeepingLocalOnly() {
     # this is confusing but correct (reversed in rebase).
-    git rebase -X theirs;
+    git rebase $(mainBranch) -X theirs;
   }
   # Merge latest changes from main branch into stage.
   elevateStage() {
