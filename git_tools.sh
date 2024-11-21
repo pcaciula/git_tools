@@ -51,8 +51,9 @@ alias rfu='resetFromUpstream'
   # --scope|-s: commit msg scope (defaults empty)
   # --message|-m: actual commit msg (description) (required).
   commitBranchConventional() {
-    msg=$(conventionCommitFromArgs "$@");
-    git commit -am $(echo $msg | tr -d \");
+    msgQ=$(conventionCommitFromArgs "$@");
+    msg=$(echo $msg | tr -d \");
+    git commit -am $msg;
   }
   # Refresh local copy of main branch from upstream. Assumes same name.
   refreshMainBranch() {
