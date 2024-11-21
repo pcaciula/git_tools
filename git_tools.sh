@@ -5,6 +5,9 @@
 # Date: 2024-11-19
 # Version: 1.0
 
+# Load up dynamic_function_opts from same dir.
+. "$(dirname $(realpath $0))/dynamic_function_opts.sh";
+
 #================================= GIT TOOLS =================================#
 # newBranch 12345 'feature' 'MyProject'
 alias newBranch='newBranchFromMain'
@@ -51,7 +54,7 @@ alias rfu='resetFromUpstream'
   # --scope|-s: commit msg scope (defaults empty)
   # --message|-m: actual commit msg (description) (required).
   commitBranchConventional() {
-    local msgQ=$(conventionCommitFromArgs "$@");
+    local msgQ=$(conventionalCommitFromOpts "$@");
     local msg=$(echo $msgQ | tr -d \" | tr -d \" );
     git commit -am $msg;
   }
@@ -181,47 +184,36 @@ alias rfu='resetFromUpstream'
     withOrigin=${1:-$(mainBranch)};
     echo ${withOrigin#$(upstreamName)/}
   }
+
   # Parse passed args and build conventional commit msg from them.
-  # --type|-t: commit msg type (defaults feat)
-  # --scope|-s: commit msg scope (defaults empty)
-  # --message|-m: actual commit msg (description).
-  conventionCommitFromArgs() {
-    while [ $# -gt 0 ]; do
-      case "$1" in
-        --type*|-t*)
-          if [[ "$1" != *=* ]]; then shift; fi # Value is next arg if no `=`
-          t="${1#*=}"
-          ;;
-        --scope*|-s*)
-          if [[ "$1" != *=* ]]; then shift; fi
-          s="${1#*=}"
-          ;;
-        --message*|-m*)
-          if [[ "$1" != *=* ]]; then shift; fi
-          msg="${1#*=}"
-          ;;
-        --help|-h)
-          echo "Usage:
-  commitBranchConventional -t='chore' -m='My Commit message'
-  commitBranchConventional -t='feat' -s="MyModule" -m='My Commit message'"
-          return 0
-          ;;
-        *)
-          >&2 echo "Error: Invalid argument\n"
-          return 1
-          ;;
-      esac
-      shift
-    done
-    if [ -z "$msg" ]; then
-      >&2 printf "Error: Missing required arg (--message|-m)\n"
+  # -t: commit msg type (defaults feat)
+  # -s: commit msg scope (defaults current branch (PROJ-12345))
+  # -m: actual commit msg (required).
+  # usage:
+  #   conventionCommitFromOpts -t=fix -m="My Commit Message" "fix({current-branch}): My Commit Message"
+  #   conventionCommitFromOpts -t='' -m="My Commit Message" "feat({current-branch}): My Commit Message"
+  #   conventionCommitFromOpts -t="" -s=""  -m="My Commit Message" feat: My Commit Message
+  conventionalCommitFromOpts() {
+    echo "$@"
+    local opts=$(parse_dynamic_options "$@");
+    echo $opts;
+    # Default to feat.
+    local type=$(_optsVal $opts "t" "feat");
+    # Default to current branch.
+    local scope=$(_optsVal $opts "s" $(getBranchNoPrefix));
+    local message=$(_optsVal $opts "m");
+
+    # Error if no msg, but allow empty string if
+    if [[ -z "$message"  ]]; then
+      >&2 printf "Error: Missing required arg (-m:commit msg)\n"
       return 1;
     fi
-    type=${t:-feat}
-    if [ -z "s" ]; then
+    type=${type:-feat}
+    if [ -z "$scope" ]; then
         pre="$type"
     else
-        pre="$type($s)"
+        pre="$type($scope)"
     fi
-    echo "$pre: $msg";
+    echo "$pre: $message";
   }
+
