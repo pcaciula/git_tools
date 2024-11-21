@@ -50,7 +50,7 @@ alias rfu='resetFromUpstream'
   commitBranchConventional() {
     branch=$(branch)
     msg=$(conventionCommitFromArgs "$@");
-    git commit -am "$msg";
+    git commit -am $msg;
   }
   # Refresh local copy of main branch from upstream. Assumes same name.
   refreshMainBranch() {
