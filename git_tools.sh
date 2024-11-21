@@ -40,9 +40,7 @@ alias rfu='resetFromUpstream'
   # Simply commit the current branch with the message passed as the first param.
   # $1: The content of the commit message (minus tqhe prefix).
   commitBranch() {
-    branch=$(branch)
-    msg=$1;
-    git commit -am "\"$(branch): $1\"";
+    git commit -am "$(getBranchNoPrefix): $1";
   }
   # Make a commit using conventional style - options must be passed as named.
   # usage: commitBranchConventional -m "My Commit Message" -t="chore" -s="myModule"
@@ -52,7 +50,7 @@ alias rfu='resetFromUpstream'
   commitBranchConventional() {
     branch=$(branch)
     msg=$(conventionCommitFromArgs "$@");
-    git commit -am "\"$msg\"";
+    git commit -am "$msg";
   }
   # Refresh local copy of main branch from upstream. Assumes same name.
   refreshMainBranch() {
@@ -119,6 +117,12 @@ alias rfu='resetFromUpstream'
     if [ "$3" = "<no-project>" ]; then proj=""; fi;
     branch="${prefix}${proj}${number}";
     echo $branch;
+  }
+  # Get Project-Ticket# from from branch
+  # $1: The branch optionally.
+  getBranchNoPrefix() {
+    branch=${1:-$(branch)}
+    echo ${"${branch#*/}"}
   }
   # Find last common commit between 2 branches
   # $1: compare branch1
