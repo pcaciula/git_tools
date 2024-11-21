@@ -40,9 +40,9 @@ alias rfu='resetFromUpstream'
   # Simply commit the current branch with the message passed as the first param.
   # $1: The content of the commit message (minus tqhe prefix).
   commitBranch() {
-    msgQ="$(getBranchNoPrefix): $1";
+    local msgQ="$(getBranchNoPrefix): $1";
     # strip the quotes.
-    msg=$(echo $msgQ | tr -d \")
+    local msg=$(echo $msgQ | tr -d \")
     git commit -am $msg;
   }
   # Make a commit using conventional style - options must be passed as named.
@@ -51,13 +51,13 @@ alias rfu='resetFromUpstream'
   # --scope|-s: commit msg scope (defaults empty)
   # --message|-m: actual commit msg (description) (required).
   commitBranchConventional() {
-    msgQ=$(conventionCommitFromArgs "$@");
-    msg=$(echo $msg | tr -d \" | tr -d \" );
+    local msgQ=$(conventionCommitFromArgs "$@");
+    local msg=$(echo $msgQ | tr -d \" | tr -d \" );
     git commit -am $msg;
   }
   # Refresh local copy of main branch from upstream. Assumes same name.
   refreshMainBranch() {
-    mainBranch=$(mainBranchName);
+    local mainBranch=$(mainBranchName);
     git checkout $mainBranch;
     resetFromUpstream $mainBranch;
   }
@@ -86,7 +86,7 @@ alias rfu='resetFromUpstream'
   }
   # Merge latest changes from main branch into stage.
   elevateStage() {
-    upstream=$(upstreamName);
+    local upstream=$(upstreamName);
     git fetch --all && git checkout stage && git reset --hard "$upstream/stage" && git merge $(getMainBranch);
   }
   # Checkout a branch for pr review from ticket number (at least).
@@ -94,7 +94,7 @@ alias rfu='resetFromUpstream'
   # $2: Prefix (default "feature", "<none>" will omit entirely)
   # $3: Project (default "KOCO", "<no-project>" will ommit including dash)
   checkoutPrReview() {
-    prBranch=$(branchFromParts "$@")
+    local prBranch=$(branchFromParts "$@")
     echo "checking out $prBranch branch locally."
     git checkout "$prBranch";
     resetFromUpstream ${1:-$(branch)}
@@ -103,8 +103,8 @@ alias rfu='resetFromUpstream'
   # $1: Optional branch name if it's not the current.
   resetFromUpstream() {
     git fetch --all;
-    branch=${1:-$(branch)}
-    remote=$(upstreamName $branch)/$branch;
+    local branch=${1:-$(branch)}
+    local remote=$(upstreamName $branch)/$branch;
     echo "Resetting hard to upstream ($remote) to get latest changes."
     git reset --hard $remote;
   }
@@ -113,12 +113,12 @@ alias rfu='resetFromUpstream'
   # $2: Prefix (default "feature", "<none>" will omit entirely)
   # $3: Project (default "KOCO", "<no-project>" will ommit including dash)
   branchFromParts() {
-    number=$1;
-    prefix="${2:-feature}/";
-    proj="${3:-KOCO}-";
+    local number=$1;
+    local prefix="${2:-feature}/";
+    local proj="${3:-KOCO}-";
     if [ "$2" = "<none>"  ]; then prefix=""; fi;
     if [ "$3" = "<no-project>" ]; then proj=""; fi;
-    branch="${prefix}${proj}${number}";
+    local branch="${prefix}${proj}${number}";
     echo $branch;
   }
   # Get Project-Ticket# from from branch
