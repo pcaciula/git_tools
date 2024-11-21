@@ -40,7 +40,10 @@ alias rfu='resetFromUpstream'
   # Simply commit the current branch with the message passed as the first param.
   # $1: The content of the commit message (minus tqhe prefix).
   commitBranch() {
-    git commit -am "$(getBranchNoPrefix): $1";
+    msgQ="$(getBranchNoPrefix): $1";
+    # strip the quotes.
+    msg=$(echo $msgQ | tr -d \")
+    git commit -am $msg;
   }
   # Make a commit using conventional style - options must be passed as named.
   # usage: commitBranchConventional -m "My Commit Message" -t="chore" -s="myModule"
@@ -48,10 +51,8 @@ alias rfu='resetFromUpstream'
   # --scope|-s: commit msg scope (defaults empty)
   # --message|-m: actual commit msg (description) (required).
   commitBranchConventional() {
-    branch=$(branch)
-    msg=$(conventionCommitFromArgs "$@");
-    git commit -am $msg
-    ;
+    msg=$(conventionCommitFromArgs "$@" | tr -d \");
+    git commit -am $msg;
   }
   # Refresh local copy of main branch from upstream. Assumes same name.
   refreshMainBranch() {
