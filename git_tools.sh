@@ -52,7 +52,7 @@ alias rfu='resetFromUpstream'
   # --message|-m: actual commit msg (description) (required).
   commitBranchConventional() {
     msgQ=$(conventionCommitFromArgs "$@");
-    msg=$(echo $msg | tr -d \");
+    msg=$(echo $msg | tr -d \" | tr -d \" );
     git commit -am $msg;
   }
   # Refresh local copy of main branch from upstream. Assumes same name.
