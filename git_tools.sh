@@ -50,9 +50,9 @@ alias rfu='resetFromUpstream'
   }
   # Make a commit using conventional style - options must be passed as named.
   # usage: commitBranchConventional -m "My Commit Message" -t="chore" -s="myModule"
-  # --type|-t: commit msg type (defaults feat)
-  # --scope|-s: commit msg scope (defaults empty)
-  # --message|-m: actual commit msg (description) (required).
+  # -t: commit msg type (defaults feat)
+  # -s: commit msg scope (defaults empty)
+  # -m: actual commit msg (description) (required).
   commitBranchConventional() {
     local msgQ=$(conventionalCommitFromOpts "$@");
     local msg=$(echo $msgQ | tr -d \" | tr -d \" );
@@ -100,7 +100,7 @@ alias rfu='resetFromUpstream'
     local prBranch=$(branchFromParts "$@")
     echo "checking out $prBranch branch locally."
     git checkout "$prBranch";
-    resetFromUpstream ${1:-$(branch)}
+    resetFromUpstream $prBranch
   }
   # Reset branch to upstream state.
   # $1: Optional branch name if it's not the current.
@@ -129,6 +129,11 @@ alias rfu='resetFromUpstream'
   getBranchNoPrefix() {
     branch=${1:-$(branch)}
     echo ${"${branch#*/}"}
+  }
+  # Reset to given commit hash
+  # $1: commit hash
+  resetToCommit() {
+    git reset --hard $1;
   }
   # Find last common commit between 2 branches
   # $1: compare branch1
