@@ -90,7 +90,13 @@ alias rfu='resetFromUpstream'
   # Merge latest changes from main branch into stage.
   elevateStage() {
     local upstream=$(upstreamName);
-    git fetch --all && git checkout stage && git reset --hard "$upstream/stage" && git merge $(getMainBranch);
+    git fetch --all && git checkout stage && git reset --hard "$upstream/stage" && git merge $(mainBranch);
+  }
+  # Merge latest changes from main branch into stage.
+  elevateProd() {
+    local upstream=$(upstreamName);
+    local from=${1:-"stage"};
+    git fetch --all && git checkout prod && git reset --hard "$upstream/prod" && git merge $from;
   }
   # Checkout a branch for pr review from ticket number (at least).
   # $1: Ticket Number (required)...this doesn't strictly need to be numeric.
@@ -99,6 +105,7 @@ alias rfu='resetFromUpstream'
   checkoutPrReview() {
     local prBranch=$(branchFromParts "$@")
     echo "checking out $prBranch branch locally."
+    git fetch --all;
     git checkout "$prBranch";
     resetFromUpstream $prBranch
   }
